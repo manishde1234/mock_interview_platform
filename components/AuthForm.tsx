@@ -9,7 +9,7 @@
  import Image from "next/image";
  import Link from "next/link";
  import {toast} from "sonner";
-    import FormField from "@/components/ui/FormField"
+    import FormField from "@/components/FormField"
  import {useRouter} from "next/navigation";
  
  const authFormSchema = (type: FormType) => {
