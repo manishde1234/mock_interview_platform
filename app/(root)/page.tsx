@@ -1,11 +1,33 @@
 import InterviewCard from '@/components/InterviewCard'
 import { Button } from '@/components/ui/button'
 import { dummyInterviews } from '@/constants'
+import { getCurrentUser, getInterviewByUserId, getLatestInterviews } from '@/lib/actions/auth.action'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-const page = () => {
+const page = async () => {
+
+  const user = await getCurrentUser();
+  //parallel calling so we are doubling the speed of data fetching
+
+  const [userInterviews,latestInterviews] = await Promise.all([
+    await getInterviewByUserId(user?.id!),
+
+    getLatestInterviews({
+      userId: user?.id!,
+    })
+
+  ]);
+  // const userInterviews = await getInterviewByUserId(user?.id!);
+
+  // const latestInterviews = await getLatestInterviews({
+  //   userId: user?.id!,
+  // });
+
+  const hasPastInterviews = userInterviews?.length > 0;
+  const hasUpcomingInterviews = latestInterviews?.length > 0;
+
   return (
     <div>
 
@@ -28,8 +50,14 @@ const page = () => {
         <h2>Your Interviews</h2>
 
         <div className='interviews-section'>
-          {dummyInterviews.map((interview) => (
-            <InterviewCard {...interview} key = {interview.id} /> ))}
+          {
+            hasPastInterviews ?(
+              userInterviews?.map((interview) => (
+                <InterviewCard {...interview} key = {interview.id} /> ))) : (
+              <p>You haven&apos;t taken any interviews yet</p>
+            )
+
+          }
         </div>
 
       </section>
@@ -38,10 +66,14 @@ const page = () => {
         <h2>Take an interview</h2>
 
         <div className='interviews-section'>
-          {dummyInterviews.map((interview) => (
-            <InterviewCard {...interview} key = {interview.id}/> ))}
+        {
+            hasUpcomingInterviews ?(
+              latestInterviews?.map((interview) => (
+                <InterviewCard {...interview} key = {interview.id} /> ))) : (
+              <p>There are no new interview available</p>
+            )
 
-            {/* <p>You haven&apos;t taken any interviews yet</p> */}
+          }
         </div>
       </section>
     </div>
